@@ -337,13 +337,11 @@ def get_ai_reply(chat_id, user_text):
 
     return text
 
-@bot.message_handler(func=lambda message: 
-True)
+@bot.message_handler(func=lambda message: True)
 def handle_message(message):
     chat_id = message.chat.id
     bot.send_chat_action(chat_id, 'typing')
-     
-    
+
     try:
         add_to_history(chat_id, "user", message.text)
         reply = get_ai_reply(chat_id, message.text)
@@ -355,10 +353,10 @@ def handle_message(message):
             add_to_history(chat_id, "model", reply)
             bot.reply_to(message, reply)
 
-      except Exception as e:
-          print(e)
-          chat_histories.pop(chat_id, None)
-          bot.reply_to(message, str(e))
+    except Exception as e:
+        print(e)
+        chat_histories.pop(chat_id, None)
+        bot.reply_to(message, str(e))
 
 bot.delete_webhook(drop_pending_updates=True)
 
