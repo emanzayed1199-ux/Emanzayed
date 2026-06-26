@@ -108,7 +108,10 @@ def clear_history(chat_id):
 
 def add_to_history(chat_id, role, text):
     history = get_history(chat_id)
-    history.append({"role": role, "parts": [{text]})
+    history.append({
+    "role": role,
+    "parts": [text]
+})
     if len(history) > MAX_HISTORY:
         chat_histories[chat_id] = history[-MAX_HISTORY:]
 
