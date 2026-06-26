@@ -9,6 +9,9 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 bot = telebot.TeleBot(TOKEN)
 genai.configure(api_key=GEMINI_API_KEY)
+SYSTEM_PROMPT = (
+    "You are the 'Toxoplasmosis Reference Center')
+
 model = genai.GenerativeModel(
     'gemini-2.5-flash',
     system_instruction=SYSTEM_PROMPT
@@ -316,9 +319,8 @@ STATIC_FALLBACK = (
     "• تُفيد الأبحاث بأن الأشخاص ذوي المناعة الجيدة دون أعراض لا يحتاجون في الغالب إلى علاج."
 )
 
-def get_ai_reply(chat_id, user_text):
+ def get_ai_reply(chat_id, user_text):
     history = get_history(chat_id)
-     
     chat = model.start_chat(history=history)
     
     try: 
@@ -327,6 +329,7 @@ def get_ai_reply(chat_id, user_text):
     except Exception as e:
         print(f"Gemini API Error: {e}")
         return None
+        
         
 
     candidate = response.candidates[0]
