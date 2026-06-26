@@ -56,7 +56,17 @@ def get_ai_reply(chat_id, user_id, text):
 # ---------------- HANDLERS ----------------
 @bot.message_handler(commands=["start"])
 def start(message):
-    bot.send_message(message.chat.id, "مرحباً 👋\nأنا بوت متخصص في داء المقوسات فقط.")
+    bot.send_message(message.chat.id, """👋 أهلاً بك!
+أنا مساعد متخصص في داء المقوسات (Toxoplasmosis).
+
+🦠 اسألني أي سؤال عن:
+• الأعراض
+• طرق العدوى
+• التشخيص
+• العلاج
+• الوقاية
+
+اكتب سؤالك وسأجيبك مباشرة.""")
 
 @bot.message_handler(func=lambda m: True)
 def handle_message(message):
