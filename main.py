@@ -5,7 +5,7 @@ import google.generativeai as genai
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 TOKEN = "8967201684:AAGCcixp9J-CklHFLxLUyaZufVRZm0Hw6Bc"
-GOOGLE_API_KEY = os.environ.get("Gemini API Key")
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -316,10 +316,10 @@ def get_ai_reply(chat_id, user_text):
     )
     history = get_history(chat_id)
     if history and history[-1]["role"] == "user":
-       history[-1]["parts"][0]["text"] = educational_prefix + user_text
- 
-response = model.generate_content(history)
-  
+        history[-1]["parts"][0]["text"] = educational_prefix + user_text
+
+    response = model.generate_content(history)
+
     if not response.candidates:
         return None
 
