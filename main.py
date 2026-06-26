@@ -9,7 +9,7 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 bot = telebot.TeleBot(TOKEN)
 
-genai.configure(api_key=GOOGLE_API_KEY)
+genai.configure(api_key= GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-pro')
 
 SYSTEM_PROMPT = (
