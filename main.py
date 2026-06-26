@@ -316,14 +316,10 @@ def get_ai_reply(chat_id, user_text):
     )
     history = get_history(chat_id)
     if history and history[-1]["role"] == "user":
-        history[-1]["parts"][0]["text"] = educational_prefix + user_text
-
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=history,
-        config={"system_instruction": SYSTEM_PROMPT}
-    )
-
+       history[-1]["parts"][0]["text"] = educational_prefix + user_text
+ 
+response = model.generate_content(history)
+  
     if not response.candidates:
         return None
 
