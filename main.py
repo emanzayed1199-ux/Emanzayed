@@ -70,5 +70,10 @@ def handle_message(message):
     bot.reply_to(message, reply)
 
 # ---------------- RUN ----------------
+ 
 bot.delete_webhook(drop_pending_updates=True)
 bot.polling(none_stop=True)
+time.sleep(5)
+
+if __name__ == "__main__":
+    run_bot()
