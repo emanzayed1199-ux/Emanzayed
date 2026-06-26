@@ -4,7 +4,8 @@ import telebot
 import google.generativeai as genai
 from collections import defaultdict
 
-TOKEN = "8967201684:AAG-147bng4WLgmDqc79UAoAvIxt9CsVjcU"
+# المتغيرات تُقرأ من إعدادات Railway (أكثر أماناً)
+TOKEN = os.environ.get("TELEGRAM_TOKEN")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 bot = telebot.TeleBot(TOKEN)
@@ -24,7 +25,6 @@ model = genai.GenerativeModel(
 
 # ---------------- MEMORY ----------------
 chat_histories = defaultdict(list)
-
 MAX_HISTORY = 10
 
 def add_to_history(chat_id, role, text):
@@ -38,69 +38,38 @@ COOLDOWN_SECONDS = 5
 def is_rate_limited(user_id):
     now = time.time()
     last = user_last_request.get(user_id, 0)
-
     if now - last < COOLDOWN_SECONDS:
         return True
-
     user_last_request[user_id] = now
     return False
 
-# ---------------- CACHE ----------------
-response_cache = {}
-
-def get_cache_key(text):
-    return text.strip().lower()
-
 # ---------------- GEMINI ----------------
 def get_ai_reply(chat_id, user_id, text):
-
-    # rate limit
     if is_rate_limited(user_id):
         return "⏳ استنى ثواني قبل ما تبعت سؤال جديد."
-
-    # cache check
-    key = get_cache_key(text)
-    if key in response_cache:
-        return response_cache[key]
-
     try:
         chat = model.start_chat(history=chat_histories[chat_id])
         response = chat.send_message(text)
-        reply = response.text
-
-        # save cache
-        response_cache[key] = reply
-
-        return reply
-
+        return response.text
     except Exception as e:
         print("Gemini error:", e)
-        return "⚠️ حصل خطأ مؤقت في النظام، حاول تاني بعد قليل."
+        return "⚠️ حصل خطأ مؤقت في النظام."
 
- 
+# ---------------- HANDLERS ----------------
+@bot.message_handler(commands=["start"])
+def start(message):
+    bot.send_message(message.chat.id, "مرحباً 👋\nأنا بوت متخصص في داء المقوسات فقط.")
+
 @bot.message_handler(func=lambda m: True)
 def handle_message(message):
     chat_id = message.chat.id
     user_id = message.from_user.id
     text = message.text
-
     bot.send_chat_action(chat_id, "typing")
-
     add_to_history(chat_id, "user", text)
-
     reply = get_ai_reply(chat_id, user_id, text)
-
     add_to_history(chat_id, "model", reply)
-
     bot.reply_to(message, reply)
-
- 
-@bot.message_handler(commands=["start"])
-def start(message):
-    bot.send_message(
-        message.chat.id,
-        "مرحباً 👋\nأنا بوت متخصص في داء المقوسات فقط."
-    )
 
 # ---------------- RUN ----------------
 bot.delete_webhook(drop_pending_updates=True)
