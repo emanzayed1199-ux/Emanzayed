@@ -341,7 +341,7 @@ def get_ai_reply(chat_id, user_text):
 def handle_message(message):
     chat_id = message.chat.id
     bot.send_chat_action(chat_id, 'typing')
-    try:
+      try:
         add_to_history(chat_id, "user", message.text)
         reply = get_ai_reply(chat_id, message.text)
 
