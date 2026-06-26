@@ -319,7 +319,6 @@ def get_ai_reply(chat_id, user_text):
        history[-1]["parts"][0]["text"] = educational_prefix + user_text
  
 response = model.generate_content(history)
-  
     if not response.candidates:
         return None
 
