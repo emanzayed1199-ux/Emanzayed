@@ -353,9 +353,9 @@ def handle_message(message):
             bot.reply_to(message, reply)
 
         except Exception as e:
-        print(e)
-        chat_histories.pop(chat_id, None)
-        bot.reply_to(message, str(e))
+           print(e)
+           chat_histories.pop(chat_id, None)
+           bot.reply_to(message, str(e))
 
 bot.delete_webhook(drop_pending_updates=True)
 
