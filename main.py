@@ -9,7 +9,11 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 bot = telebot.TeleBot(TOKEN)
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-2.5-flash')
+model = genai.GenerativeModel(
+    'gemini-2.5-flash',
+    system_instruction=SYSTEM_PROMPT
+)
+
 
 SYSTEM_PROMPT = (
     "You are the 'Toxoplasmosis Reference Center' (المركز المرجعي لداء المقوسات) — "
@@ -313,17 +317,17 @@ STATIC_FALLBACK = (
 )
 
 def get_ai_reply(chat_id, user_text):
-    educational_prefix = (
-        "[General knowledge question about Toxoplasmosis for educational purposes]: "
-    )
     history = get_history(chat_id)
-    if history and history[-1]["role"] == "user":
-       history[-1]["parts"][0]= educational_prefix + user_text
- 
-    response = model.generate_content(SYSTEM_PROMPT + "\n\n" + user_text
-                                     )
-    if not response.candidates:
+     
+    chat = model.start_chat(history=history)
+    
+    try: 
+        response = chat.send_message(user_text)
+        return response.text
+    except Exception as e:
+        print(f"Gemini API Error: {e}")
         return None
+        
 
     candidate = response.candidates[0]
     finish_reason = str(getattr(candidate, "finish_reason", "")).upper()
