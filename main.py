@@ -51,7 +51,7 @@ def get_ai_reply(chat_id, user_id, text):
         chat = model.start_chat(history=chat_histories[chat_id])
         response = chat.send_message(text)
         return response.text
-     except Exception as e:
+except Exception as e:
     return str(e)
 # ---------------- HANDLERS ----------------
 @bot.message_handler(commands=["start"])
