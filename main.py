@@ -108,7 +108,7 @@ def clear_history(chat_id):
 
 def add_to_history(chat_id, role, text):
     history = get_history(chat_id)
-    history.append({"role": role, "parts": [{"text": text}]})
+    history.append({"role": role, "parts": [{text]})
     if len(history) > MAX_HISTORY:
         chat_histories[chat_id] = history[-MAX_HISTORY:]
 
@@ -317,7 +317,8 @@ def get_ai_reply(chat_id, user_text):
     if history and history[-1]["role"] == "user":
        history[-1]["parts"][0]["text"] = educational_prefix + user_text
  
-    response = model.generate_content(history)
+    response = model.generate_content(SYSTEM_PROMPT + "\n\n" + user_text
+                                     )
     if not response.candidates:
         return None
 
