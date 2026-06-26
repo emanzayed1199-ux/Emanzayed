@@ -16,14 +16,10 @@ def send_welcome(message):
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
     try:
-        response = model.generate_content(message.text)
-        bot.reply_to(message, response.text)
-    except Exception as e:
-        bot.reply_to(message, "عذراً، حدث خطأ في الاتصال. حاولي مرة أخرى.")
-
-
-bot.polling()
-
+    response = model.generate_content(message.text)
+    bot.reply_to(message, response.text)
+except Exception as e:
+    bot.reply_to(message, str(e))
 SYSTEM_PROMPT = (
     "You are the 'Toxoplasmosis Reference Center' (المركز المرجعي لداء المقوسات) — "
     "a professional clinical research consultancy system. "
