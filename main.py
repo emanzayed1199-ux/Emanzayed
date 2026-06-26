@@ -1,4 +1,4 @@
- import os
+import os
 import time
 import telebot
 import google.generativeai as genai
