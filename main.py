@@ -5,7 +5,7 @@ import google.generativeai as genai
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 TOKEN = "8967201684:AAGCcixp9J-CklHFLxLUyaZufVRZm0Hw6Bc"
-GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
+GOOGLE_API_KEY = os.environ.get("Gemini API Key")
 
 bot = telebot.TeleBot(TOKEN)
 
