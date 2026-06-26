@@ -10,7 +10,7 @@ GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 bot = telebot.TeleBot(TOKEN)
 
 genai.configure(api_key=GOOGLE_API_KEY)
-
+model = genai.GenerativeModel('gemini-pro')
 
 SYSTEM_PROMPT = (
     "You are the 'Toxoplasmosis Reference Center' (المركز المرجعي لداء المقوسات) — "
