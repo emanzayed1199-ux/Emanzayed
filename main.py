@@ -4,7 +4,7 @@ import telebot
 import google.generativeai as genai
 from collections import defaultdict
 
-TOKEN = "8967201684:AAGCcixp9J-CklHFLxLUyaZufVRZm0Hw6Bc"
+TOKEN = "8967201684:AAG-147bng4WLgmDqc79UAoAvIxt9CsVjcU"
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 bot = telebot.TeleBot(TOKEN)
