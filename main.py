@@ -352,9 +352,10 @@ def handle_message(message):
             add_to_history(chat_id, "model", reply)
             bot.reply_to(message, reply)
 
-    except Exception as e:
+        except Exception as e:
+        print(e)
         chat_histories.pop(chat_id, None)
-        bot.reply_to(message, "عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.")
+        bot.reply_to(message, str(e))
 
 bot.delete_webhook(drop_pending_updates=True)
 
