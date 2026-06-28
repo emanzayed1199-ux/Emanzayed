@@ -1,39 +1,45 @@
-import os
+ import os
 import time
 import telebot
 import google.generativeai as genai
 from collections import defaultdict
+from google.api_core import exceptions
 
-# المتغيرات تُقرأ من إعدادات Railway (أكثر أماناً)
+# 1. جلب المفاتيح من إعدادات Railway
 TOKEN = os.environ.get("TELEGRAM_TOKEN")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
+# 2. إعداد مكتبة تليجرام وجوجل
 bot = telebot.TeleBot(TOKEN)
 genai.configure(api_key=GEMINI_API_KEY)
 
+# التعليمات البرمجية للبوت (System Prompt)
 SYSTEM_PROMPT = """
 You are a Toxoplasmosis Reference Center.
 Only answer questions about toxoplasmosis.
-If outside topic: reply in Arabic refusal.
-Be concise, medical, bullet points.
+If the question is outside this topic: reply in Arabic that you only specialize in Toxoplasmosis.
+Be concise, medical, and use bullet points.
+Answer in the language of the user (Arabic/English).
 """
 
+# إعداد الموديل - استخدمنا اسم "models/gemini-1.5-flash" لضمان الوصول إليه
 model = genai.GenerativeModel(
-    "gemini-1.0-pro",
+    model_name="models/gemini-1.5-flash",
     system_instruction=SYSTEM_PROMPT
 )
 
-# ---------------- MEMORY ----------------
+# ---------------- ذاكرة المحادثة ----------------
 chat_histories = defaultdict(list)
-MAX_HISTORY = 10
+MAX_HISTORY = 6 # الاحتفاظ بآخر 6 رسائل لتقليل حجم البيانات
 
 def add_to_history(chat_id, role, text):
     chat_histories[chat_id].append({"role": role, "parts": [text]})
-    chat_histories[chat_id] = chat_histories[chat_id][-MAX_HISTORY:]
+    if len(chat_histories[chat_id]) > MAX_HISTORY:
+        chat_histories[chat_id] = chat_histories[chat_id][-MAX_HISTORY:]
 
-# ---------------- RATE LIMIT ----------------
+# ---------------- منع الرسائل المزعجة (Rate Limit) ----------------
 user_last_request = {}
-COOLDOWN_SECONDS = 5
+COOLDOWN_SECONDS = 4 
 
 def is_rate_limited(user_id):
     now = time.time()
@@ -43,47 +49,58 @@ def is_rate_limited(user_id):
     user_last_request[user_id] = now
     return False
 
-# ---------------- GEMINI ----------------
+# ---------------- وظيفة الحصول على رد من Gemini ----------------
 def get_ai_reply(chat_id, user_id, text):
     if is_rate_limited(user_id):
-        return "⏳ استنى ثواني قبل ما تبعت سؤال جديد."
+        return "⏳ فضلاً، انتظر قليلاً قبل إرسال سؤال آخر."
+    
     try:
+        # بدء الدردشة مع الذاكرة
         chat = model.start_chat(history=chat_histories[chat_id])
         response = chat.send_message(text)
         return response.text
+    
+    except exceptions.ResourceExhausted:
+        return "⚠️ وصلت للحد الأقصى من الرسائل المجانية حالياً. جرب مرة أخرى بعد دقيقة."
+    except exceptions.DeadlineExceeded:
+        return "⚠️ استغرق الرد وقتاً طويلاً، حاول مرة أخرى."
     except Exception as e:
-       return str(e)
-# ---------------- HANDLERS ----------------
+        print(f"Error Details: {e}") # سيظهر في سجلات Railway
+        return "❌ عذراً، الموديل غير متاح حالياً. حاول بعد لحظات."
+
+# ---------------- معالجة الرسائل ----------------
 @bot.message_handler(commands=["start"])
 def start(message):
-    bot.send_message(message.chat.id, """👋 أهلاً بك!
-أنا مساعد متخصص في داء المقوسات (Toxoplasmosis).
-
-🦠 اسألني أي سؤال عن:
-• الأعراض
-• طرق العدوى
-• التشخيص
-• العلاج
-• الوقاية
-
-اكتب سؤالك وسأجيبك مباشرة.""")
+    welcome_text = (
+        "👋 أهلاً بك في مركز معلومات داء المقوسات (Toxoplasmosis).\n\n"
+        "🦠 يمكنني مساعدتك في الإجابة على استفساراتك حول:\n"
+        "• الأعراض، التشخيص، العلاج، وطرق الوقاية.\n\n"
+        "اسأل سؤالك الآن."
+    )
+    bot.send_message(message.chat.id, welcome_text)
 
 @bot.message_handler(func=lambda m: True)
 def handle_message(message):
     chat_id = message.chat.id
     user_id = message.from_user.id
     text = message.text
+    
+    # إظهار حالة "يكتب الآن"
     bot.send_chat_action(chat_id, "typing")
-    add_to_history(chat_id, "user", text)
+    
+    # الحصول على الرد
     reply = get_ai_reply(chat_id, user_id, text)
+    
+    # حفظ المحادثة
+    add_to_history(chat_id, "user", text)
     add_to_history(chat_id, "model", reply)
+    
+    # إرسال الرد للمستخدم
     bot.reply_to(message, reply)
 
-# ---------------- RUN ----------------
- 
-bot.delete_webhook(drop_pending_updates=True)
-bot.polling(none_stop=True)
-time.sleep(5)
-
+# ---------------- تشغيل البوت ----------------
 if __name__ == "__main__":
-    run_bot()
+    print("Bot is running...")
+    # حذف الـ Webhook القديم لضمان عمل Polling بشكل صحيح
+    bot.delete_webhook(drop_pending_updates=True)
+    bot.polling(none_stop=True)
