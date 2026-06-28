@@ -26,7 +26,17 @@ model = find_any_model()
 
 @bot.message_handler(commands=["start"])
 def start(message):
-    bot.send_message(message.chat.id, "👋 البوت اشتغل وبيدور على أفضل موديل متاح... ابعت سؤالك!")
+    welcome_text = (
+        "👋 *أهلاً بك في بوت Toxoplasmosis Facts!*\n\n"
+        "أنا مساعدك الذكي المتخصص في تقديم معلومات طبية شاملة حول *داء المقوسات (التوكسوبلازما)*. 🦠\n\n"
+        "يمكنك سؤالي عن:\n"
+        "• 🧬 طرق انتقال العدوى.\n"
+        "• 🌡️ الأعراض والتشخيص.\n"
+        "• 💊 طرق الوقاية والعلاج.\n\n"
+        "📩 *اكتب سؤالك الآن وسأقوم بالرد عليك فوراً!*"
+    )
+    # أضفنا parse_mode="Markdown" لجعل الخط عريض ومنسق
+    bot.send_message(message.chat.id, welcome_text, parse_mode="Markdown")
 
 @bot.message_handler(func=lambda m: True)
 def handle_message(message):
