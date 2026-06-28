@@ -19,7 +19,7 @@ Be concise, medical, bullet points.
 """
 
 model = genai.GenerativeModel(
-    "gemini-1.5-flash",
+    "gemini-1.0-pro",
     system_instruction=SYSTEM_PROMPT
 )
 
