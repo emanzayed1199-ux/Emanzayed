@@ -1,5 +1,5 @@
 
-import os
+import 
 import telebot
 import google.generativeai as genai
 
